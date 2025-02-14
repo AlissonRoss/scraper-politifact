@@ -1,0 +1,116 @@
+Top 10 sources for each rating:
+
+Rating: barely-true
+             source  count
+8      Donald Trump     11
+17  Instagram posts      8
+26    Kamala Harris      7
+13   Facebook posts      6
+18         JD Vance      5
+23        Joe Biden      5
+33      Nikki Haley      3
+42     Ron DeSantis      3
+58          X posts      3
+24       Jon Tester      2
+----------------------------------------
+
+Rating: false
+              source  count
+93    Facebook posts    398
+96   Instagram posts    288
+147    Threads posts    152
+155      Viral image    133
+158          X posts     90
+143     Social Media     48
+86      Donald Trump     46
+148     TikTok posts     36
+97          JD Vance      8
+101        Joe Biden      7
+----------------------------------------
+
+Rating: full-flop
+           source  count
+159  Donald Trump      1
+160     Joe Biden      1
+161   Marco Rubio      1
+----------------------------------------
+
+Rating: half-true
+              source  count
+178        Joe Biden     11
+181    Kamala Harris      7
+168     Donald Trump      3
+194     Ron DeSantis      3
+199         Tim Walz      3
+162      Bryan Steil      2
+172   Facebook posts      2
+175  Jared Moskowitz      2
+197     Social Media      2
+163     Chris Larson      1
+----------------------------------------
+
+Rating: mostly-true
+                 source  count
+220           Joe Biden      7
+223       Kamala Harris      4
+236       Tammy Baldwin      3
+216       Donna Brazile      2
+217          Eric Hovde      2
+228      Lindsey Graham      2
+230      Pete Buttigieg      2
+233         Ron Johnson      2
+205         Adam Schiff      1
+206  Alejandro Mayorkas      1
+----------------------------------------
+
+Rating: pants-fire
+                     source  count
+245          Facebook posts     89
+247         Instagram posts     72
+267                 X posts     37
+266             Viral image     29
+263           Threads posts     27
+244            Donald Trump     23
+261            Social Media      7
+264            TikTok posts      4
+249                JD Vance      2
+252  Marjorie Taylor Greene      2
+----------------------------------------
+
+Rating: true
+               source  count
+279     Kamala Harris      6
+270     Byron Donalds      3
+292     Tammy Baldwin      3
+294        Tony Evers      3
+278         Joe Biden      2
+291      Social Media      2
+268  António Guterres      1
+269   Brian Schimming      1
+271      Chris Larson      1
+272      Common Cause      1
+----------------------------------------
+Top 10 sources with the most posts:
+source
+Facebook posts     495
+Instagram posts    369
+Threads posts      182
+Viral image        163
+X posts            131
+Donald Trump        85
+Social Media        59
+TikTok posts        41
+Joe Biden           33
+Kamala Harris       28
+dtype: int64
+--------------------
+Top 10 ratings by the number of fact-check posts:
+rating
+false          1338
+pants-fire      312
+barely-true     107
+half-true        69
+mostly-true      50
+true             41
+full-flop         3
+dtype: int64
