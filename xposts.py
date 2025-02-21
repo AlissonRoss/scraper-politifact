@@ -1,91 +1,49 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
 from bs4 import BeautifulSoup
-import time
 import pandas as pd
 
-# Set up the Chrome WebDriver
-service = Service(ChromeDriverManager().install())
-options = Options()
-options.add_argument('--headless')  # Headless mode to run in the background
-driver = webdriver.Chrome(service=service, options=options)
+# Function to scrape the details from the URL
+def scrape_post_details(url):
+    try:
+        # Fetch the HTML content
+        response = requests.get(url)
+        if response.status_code != 200:
+            return None, None  # Return None if the request fails
 
-# URL to scrape (Politifact fact-checks about tweets)
-url = 'https://www.politifact.com/factchecks/list/?speaker=tweets'
+        # Parse the HTML content with BeautifulSoup
+        soup = BeautifulSoup(response.content, 'html.parser')
 
-# Open the page
-driver.get(url)
+        # Find the poster's name and the original post's source link
+        # (You may need to adjust these based on the structure of the page)
+        poster_name = soup.find('span', {'class': 'author-name'})  # Adjust selector as needed
+        source_link = soup.find('section', {'class': 'sources'})  # Adjust selector as needed
 
-# Wait for the fact-check elements to be visible (adjust waiting condition)
-try:
-    WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'o-factcheck-summary')))
-except:
-    print("Timeout: Couldn't find fact-check entries.")
-    driver.quit()
-    exit()
+        poster_name = poster_name.get_text() if poster_name else "Unknown"
+        source_link = source_link['href'] if source_link else "Unknown"
 
-# Parse the page with BeautifulSoup
-soup = BeautifulSoup(driver.page_source, 'html.parser')
+        return poster_name, source_link
+    except Exception as e:
+        print(f"Error scraping {url}: {e}")
+        return None, None
 
-# Lists to store the scraped data
-users = []
-source_urls = []
+# Load the CSV file
+df = pd.read_csv('./politifact_factchecks_jan1_to_dec31_2024_with_urls.csv')
 
-# Find all the fact-check elements (each tweet fact-check entry)
-fact_check_elements = soup.find_all('li', class_='o-factcheck-summary')
+# Iterate through each row, scrape the URL and gather details
+posters = []
+sources = []
 
-# Iterate through the fact-checks and extract data
-for fact_check in fact_check_elements:
-    # Find the link to the detailed fact-check page
-    quote_link = fact_check.find('a', class_='m-statement_quote')
-    if quote_link:
-        # Click on the link to open the fact-check page
-        fact_check_url = 'https://www.politifact.com' + quote_link['href']
-        driver.get(fact_check_url)  # Navigate to the fact-check page
+for index, row in df.iterrows():
+    url = row['url']
+    poster_name, source_link = scrape_post_details(url)
+    posters.append(poster_name)
+    sources.append(source_link)
 
-        # Wait for the tweet's user and URL to load
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'c-tweet__user')))
-        
-        # Parse the new page
-        fact_check_page_soup = BeautifulSoup(driver.page_source, 'html.parser')
+# Add the scraped details to the dataframe
+df['original_poster'] = posters
+df['original_source'] = sources
 
-        # Extract the source user (the user who posted the tweet)
-        user = fact_check_page_soup.find('a', class_='c-tweet__user')
-        if user:
-            users.append(user.text.strip())
-        else:
-            users.append(None)
-        
-        # Extract the source URL (the link to the original tweet, not the Politifact URL)
-        tweet_link = fact_check_page_soup.find('a', href=True)
-        if tweet_link and 'x.com' in tweet_link['href']:
-            source_urls.append(tweet_link['href'])  # Direct link to the tweet
-        else:
-            source_urls.append(None)
+# Save the updated dataframe to a new CSV
+df.to_csv('updated_file.csv', index=False)
 
-        # Go back to the main page to continue scraping
-        driver.back()
-        
-        # Optional: Add a small delay to avoid being flagged as a bot
-        time.sleep(2)
-
-# Create a DataFrame to store the data
-data = pd.DataFrame({
-    'user': users,
-    'source_url': source_urls
-})
-
-# Show the first 5 rows of the data
-print(data.head())
-
-# Save the data to a CSV file
-data.to_csv('politifact_x_sources.csv', index=False)
-
-# Close the browser
-driver.quit()
-
+print("Scraping complete and file saved!")
