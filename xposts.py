@@ -14,7 +14,7 @@ chrome_options.add_argument("--headless")  # Run Chrome in headless mode (option
 driver_service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=driver_service, options=chrome_options)
 
-# Read URLs, authors, and statements from the previously scraped CSV file
+# Read URLs, authors, statements, and ratings from the previously scraped CSV file
 data_to_scrape = []
 
 with open('politifact_data_2024.csv', 'r', newline='', encoding='utf-8') as f:
@@ -23,14 +23,16 @@ with open('politifact_data_2024.csv', 'r', newline='', encoding='utf-8') as f:
     for row in reader:
         author = row[0]  # Author column
         statement = row[1]  # Statement column
+        rating = row[4]  # Rating column (assuming it's in the 5th column)
         url = row[5]  # URL column (assuming it's in the 6th column)
-        data_to_scrape.append([author, statement, url])
+        data_to_scrape.append([author, statement, rating, url])
 
 # Prepare a list to store extracted data
 x_post_links_data = []
+seen_x_post_urls = set()  # Set to track seen (unique) X Post URLs
 
 # Iterate over the URLs and visit each page
-for author, statement, url in data_to_scrape:
+for author, statement, rating, url in data_to_scrape:
     driver.get(url)
     print(f"Visiting: {url}")
 
@@ -48,20 +50,24 @@ for author, statement, url in data_to_scrape:
         
         for element in x_post_elements:
             x_post_link = element.get_attribute("href")
-            # Save the Politifact URL, post name (author/statement), and X post URL
-            x_post_links_data.append([url, author, statement, x_post_link])
+            
+            # Check if the X post link is already seen
+            if x_post_link not in seen_x_post_urls:
+                seen_x_post_urls.add(x_post_link)  # Add to set to avoid duplicates
+                # Add the entry with Politifact URL, Author, Statement, Rating, and X Post URL
+                x_post_links_data.append([url, author, statement, rating, x_post_link])
         
     except Exception as e:
         print(f"Error finding X post links: {e}")
 
-# Save the extracted data (Politifact URL, author, statement, and X post links) to a new CSV file
-with open('x_post_links_with_info.csv', 'w', newline='', encoding='utf-8') as f:
+# Save the extracted data (Politifact URL, author, statement, rating, and X post links) to a new CSV file
+with open('x_post_links_with_info_and_rating_cleaned.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.writer(f)
-    writer.writerow(['Politifact URL', 'Author', 'Statement', 'X Post URL'])
+    writer.writerow(['Politifact URL', 'Author', 'Statement', 'Rating', 'X Post URL'])
     for data in x_post_links_data:
         writer.writerow(data)
 
-print(f"Scraping complete! {len(x_post_links_data)} X post links extracted and saved to 'x_post_links_with_info.csv'.")
+print(f"Scraping complete! {len(x_post_links_data)} X post links extracted and saved to 'x_post_links_with_info_and_rating_cleaned.csv'.")
 
 # Close the driver
 driver.quit()
