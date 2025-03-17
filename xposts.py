@@ -14,18 +14,18 @@ chrome_options.add_argument("--headless")  # Run Chrome in headless mode (option
 driver_service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=driver_service, options=chrome_options)
 
-# Read URLs, authors, statements, and ratings from the previously scraped CSV file
+# Read URLs, source, statements, and ratings from the previously scraped CSV file
 data_to_scrape = []
 
-with open('politifact_data_2024.csv', 'r', newline='', encoding='utf-8') as f:
+with open('politifact_personalities.csv', 'r', newline='', encoding='utf-8') as f:
     reader = csv.reader(f)
     next(reader)  # Skip the header
     for row in reader:
-        author = row[0]  # Author column
+        personality = row[2]  # source column
         statement = row[1]  # Statement column
         rating = row[4]  # Rating column (assuming it's in the 5th column)
         url = row[5]  # URL column (assuming it's in the 6th column)
-        data_to_scrape.append([author, statement, rating, url])
+        data_to_scrape.append([personality, statement, rating, url])
 
 # Prepare a list to store extracted data
 x_post_links_data = []
@@ -59,15 +59,15 @@ for author, statement, rating, url in data_to_scrape:
         
     except Exception as e:
         print(f"Error finding X post links: {e}")
-
+output_file = 'politifact_personalities_x_urls.csv'
 # Save the extracted data (Politifact URL, author, statement, rating, and X post links) to a new CSV file
-with open('x_post_links_with_info_and_rating_cleaned.csv', 'w', newline='', encoding='utf-8') as f:
+with open('politifact_personalities_x_urls.csv', 'w', newline='', encoding='utf-8') as f:
     writer = csv.writer(f)
     writer.writerow(['Politifact URL', 'Author', 'Statement', 'Rating', 'X Post URL'])
     for data in x_post_links_data:
         writer.writerow(data)
 
-print(f"Scraping complete! {len(x_post_links_data)} X post links extracted and saved to 'x_post_links_with_info_and_rating_cleaned.csv'.")
+print(f"Scraping complete! {len(x_post_links_data)} X post links extracted and saved to '{output_file}'.")
 
 # Close the driver
 driver.quit()
