@@ -5,6 +5,12 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import csv
+# This python file goes through each row of “politifact_personalities.csv”, clicks on the Politifact url 
+# and then navigates down to the Sources HTML div. 
+# It then looks through any urls within the div that contain “x.com”. 
+# The output file is politifact_personalities_x_urls.csv
+# Realized that because I made it do contains "x.com", then the data will need to be cleaned up 
+# to ensure that there's only x.com and not anything like "https://www.devex.com" that contains "x.com"
 
 # Set up the Chrome options
 chrome_options = Options()

@@ -1,5 +1,9 @@
 import pandas as pd
 import re
+#This file gets all the human-sources
+# It goes through “politifact_factchecks_jan1_to_dec31_2024_with_urls.csv” 
+# and gets the sources that do not contain “facebook”, “x”, “instagram”,etc. The output file is “politifact_personalities.csv”
+#Then we check for the x posts later in another file: xposts.py
 
 # Input and output CSV files
 input_file = "politifact_factchecks_jan1_to_dec31_2024_with_urls.csv"
